@@ -1,189 +1,200 @@
-# OpenAPIClient-php
+# Facter SDK para PHP
 
-API pública para timbrar **CFDI 4.0** usando la infraestructura de Facter.
+[![Packagist](https://img.shields.io/packagist/v/georgesks/facter-sdk-php.svg)](https://packagist.org/packages/georgesks/facter-sdk-php)
+[![PHP](https://img.shields.io/packagist/php-v/georgesks/facter-sdk-php.svg)](https://packagist.org/packages/georgesks/facter-sdk-php)
+[![License](https://img.shields.io/packagist/l/georgesks/facter-sdk-php.svg)](LICENSE)
 
-**Modelo comercial:** un **cliente principal** (plan PREPAGO) compra timbres; sus
-**emisores** (cada uno un tenant con su propio RFC y CSD) consumen del saldo del principal.
+SDK oficial en PHP para el **API Externo de Facter**: timbra CFDI 4.0 (Ingreso,
+Egreso y Pagos 2.0), administra emisores, consulta tu saldo de timbres y recibe
+webhooks — todo con la infraestructura de timbrado de Facter.
 
-El contrato de entrada es el **JSON canónico CFDI 4.0**: el integrador envía el comprobante
-completo (Emisor, Receptor, Conceptos, Impuestos, Complemento...). Facter **valida** consistencia
-aritmética y contra catálogos SAT pero **no recalcula** totales — tu sistema es el sistema de registro.
+📚 **Documentación interactiva del API:** <https://v2.facter.com.mx/developers>
 
-**Ambientes:** prueba en **Demo** `https://demo.facter.com.mx/api/ext/v1` (sandbox de pruebas, sin
-cobro real, datos efímeros) y, cuando estés listo, pasa a **Producción** `https://v2.facter.com.mx/api/ext/v1`
-(timbrado real, consume timbres). Necesitas **una cuenta y una API key por ambiente**; la key de un
-ambiente no funciona en el otro. El host define el comportamiento.
+> El SDK se genera desde la especificación OpenAPI oficial. No contiene lógica de
+> negocio ni secretos: es un cliente HTTP tipado sobre el contrato público.
 
-**Autenticación:** `Authorization: Bearer fct_live_xxx`.
-**Idempotencia obligatoria** en endpoints mutadores vía header `Idempotency-Key`.
-Toda respuesta incluye `X-Request-Id` para soporte.
+---
 
-Documentación completa, quickstart y ejemplos: https://v2.facter.com.mx/developers
-
-For more information, please visit [https://v2.facter.com.mx/developers](https://v2.facter.com.mx/developers).
-
-## Installation & Usage
-
-### Requirements
-
-PHP 7.4 and later.
-Should also work with PHP 8.0.
-
-### Composer
-
-To install the bindings via [Composer](https://getcomposer.org/), add the following to `composer.json`:
-
-```json
-{
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/georgesks/facter-sdk-php.git"
-    }
-  ],
-  "require": {
-    "georgesks/facter-sdk-php": "*@dev"
-  }
-}
-```
-
-Then run `composer install`
-
-### Manual Installation
-
-Download the files and include `autoload.php`:
-
-```php
-<?php
-require_once('/path/to/OpenAPIClient-php/vendor/autoload.php');
-```
-
-## Getting Started
-
-Please follow the [installation procedure](#installation--usage) and then run the following:
-
-```php
-<?php
-require_once(__DIR__ . '/vendor/autoload.php');
-
-
-
-// Configure Bearer authorization: bearerAuth
-$config = Facter\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
-
-
-$apiInstance = new Facter\Sdk\Api\CFDIsApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
-    $config
-);
-$uuid = AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE; // string | UUID (Folio Fiscal) del CFDI.
-
-try {
-    $result = $apiInstance->getCfdi($uuid);
-    print_r($result);
-} catch (Exception $e) {
-    echo 'Exception when calling CFDIsApi->getCfdi: ', $e->getMessage(), PHP_EOL;
-}
-
-```
-
-## API Endpoints
-
-All URIs are relative to *https://demo.facter.com.mx/api/ext/v1*
-
-Class | Method | HTTP request | Description
------------- | ------------- | ------------- | -------------
-*CFDIsApi* | [**getCfdi**](docs/Api/CFDIsApi.md#getcfdi) | **GET** /cfdis/{uuid} | Consultar CFDI
-*CFDIsApi* | [**getCfdiPdf**](docs/Api/CFDIsApi.md#getcfdipdf) | **GET** /cfdis/{uuid}/pdf | PDF generado al vuelo
-*CFDIsApi* | [**getCfdiXml**](docs/Api/CFDIsApi.md#getcfdixml) | **GET** /cfdis/{uuid}/xml | Descargar XML timbrado
-*CFDIsApi* | [**listCfdis**](docs/Api/CFDIsApi.md#listcfdis) | **GET** /cfdis | Listar CFDIs
-*CFDIsApi* | [**stampCfdi**](docs/Api/CFDIsApi.md#stampcfdi) | **POST** /cfdis | Timbrar CFDI
-*CFDIsApi* | [**validateCfdi**](docs/Api/CFDIsApi.md#validatecfdi) | **POST** /cfdis/validate | Validar sin timbrar (dry-run)
-*CancelacionesApi* | [**getCancellationStatus**](docs/Api/CancelacionesApi.md#getcancellationstatus) | **GET** /cfdis/{uuid}/cancelacion | Estatus de cancelación
-*CancelacionesApi* | [**requestCancellation**](docs/Api/CancelacionesApi.md#requestcancellation) | **POST** /cfdis/{uuid}/cancelacion | Solicitar cancelación SAT
-*EmisoresApi* | [**createEmisor**](docs/Api/EmisoresApi.md#createemisor) | **POST** /emisores | Dar de alta un emisor
-*EmisoresApi* | [**getEmisor**](docs/Api/EmisoresApi.md#getemisor) | **GET** /emisores/{rfc} | Detalle de emisor (incluye estatus CSD)
-*EmisoresApi* | [**listEmisores**](docs/Api/EmisoresApi.md#listemisores) | **GET** /emisores | Listar emisores
-*EmisoresApi* | [**uploadCsd**](docs/Api/EmisoresApi.md#uploadcsd) | **PUT** /emisores/{rfc}/csd | Subir/reemplazar CSD
-*TimbresApi* | [**getTimbres**](docs/Api/TimbresApi.md#gettimbres) | **GET** /timbres | Saldo del pool del principal
-*TimbresApi* | [**getTimbresReporte**](docs/Api/TimbresApi.md#gettimbresreporte) | **GET** /timbres/reporte | Reporte de consumo
-*WebhooksApi* | [**getWebhooks**](docs/Api/WebhooksApi.md#getwebhooks) | **GET** /webhooks | Consultar configuración de webhooks
-*WebhooksApi* | [**upsertWebhooks**](docs/Api/WebhooksApi.md#upsertwebhooks) | **PUT** /webhooks | Configurar webhooks
-
-## Models
-
-- [CancellationRequest](docs/Model/CancellationRequest.md)
-- [CancellationStatusResponse](docs/Model/CancellationStatusResponse.md)
-- [CancellationStatusResponseData](docs/Model/CancellationStatusResponseData.md)
-- [CfdiDetailResponse](docs/Model/CfdiDetailResponse.md)
-- [CfdiEmisor](docs/Model/CfdiEmisor.md)
-- [CfdiLinks](docs/Model/CfdiLinks.md)
-- [CfdiListResponse](docs/Model/CfdiListResponse.md)
-- [CfdiListResponseMeta](docs/Model/CfdiListResponseMeta.md)
-- [CfdiReceptor](docs/Model/CfdiReceptor.md)
-- [CfdiRelacionadoGrupo](docs/Model/CfdiRelacionadoGrupo.md)
-- [CfdiRelacionadoGrupoCfdiRelacionadoInner](docs/Model/CfdiRelacionadoGrupoCfdiRelacionadoInner.md)
-- [CfdiSummary](docs/Model/CfdiSummary.md)
-- [Complemento](docs/Model/Complemento.md)
-- [Comprobante](docs/Model/Comprobante.md)
-- [Concepto](docs/Model/Concepto.md)
-- [CsdUploadRequest](docs/Model/CsdUploadRequest.md)
-- [CsdUploadResponse](docs/Model/CsdUploadResponse.md)
-- [CsdUploadResponseData](docs/Model/CsdUploadResponseData.md)
-- [Emisor](docs/Model/Emisor.md)
-- [EmisorCreateRequest](docs/Model/EmisorCreateRequest.md)
-- [EmisorCsd](docs/Model/EmisorCsd.md)
-- [EmisorResponse](docs/Model/EmisorResponse.md)
-- [ErrorEnvelope](docs/Model/ErrorEnvelope.md)
-- [ErrorEnvelopeErrorsInner](docs/Model/ErrorEnvelopeErrorsInner.md)
-- [ImpuestosComprobante](docs/Model/ImpuestosComprobante.md)
-- [ImpuestosConcepto](docs/Model/ImpuestosConcepto.md)
-- [InformacionGlobal](docs/Model/InformacionGlobal.md)
-- [ListEmisores200Response](docs/Model/ListEmisores200Response.md)
-- [Pago20](docs/Model/Pago20.md)
-- [Pago20DoctosRelacionadosInner](docs/Model/Pago20DoctosRelacionadosInner.md)
-- [Pagos20](docs/Model/Pagos20.md)
-- [Pagos20Totales](docs/Model/Pagos20Totales.md)
-- [Retencion](docs/Model/Retencion.md)
-- [StampRequest](docs/Model/StampRequest.md)
-- [StampResponse](docs/Model/StampResponse.md)
-- [StampResponseData](docs/Model/StampResponseData.md)
-- [StampResponseDataTimbres](docs/Model/StampResponseDataTimbres.md)
-- [TimbresResponse](docs/Model/TimbresResponse.md)
-- [TimbresResponseData](docs/Model/TimbresResponseData.md)
-- [TimbresResponseDataPorEmisorMesActualInner](docs/Model/TimbresResponseDataPorEmisorMesActualInner.md)
-- [Traslado](docs/Model/Traslado.md)
-- [ValidateResponse](docs/Model/ValidateResponse.md)
-- [ValidateResponseData](docs/Model/ValidateResponseData.md)
-- [WebhookConfig](docs/Model/WebhookConfig.md)
-
-## Authorization
-
-Authentication schemes defined for the API:
-### bearerAuth
-
-- **Type**: Bearer authentication
-
-## Tests
-
-To run the tests, use:
+## Instalación
 
 ```bash
-composer install
-vendor/bin/phpunit
+composer require georgesks/facter-sdk-php
 ```
 
-## Author
+**Requisitos:** PHP 7.4+ u 8.x, extensiones `ext-json` y `ext-curl`. Guzzle se
+instala como dependencia.
 
-soporte@facter.com.mx
+---
 
-## About this package
+## Ambientes
 
-This PHP package is automatically generated by the [OpenAPI Generator](https://openapi-generator.tech) project:
+> **El ambiente es el host.** Una API key de **Demo** solo funciona contra
+> `demo.facter.com.mx`; una de **Producción** solo contra `v2.facter.com.mx`. No
+> son intercambiables. Empieza siempre en Demo (timbra contra el sandbox del SAT,
+> **sin cobro real**).
 
-- API version: `1.0.0`
-    - Package version: `0.1.0`
-    - Generator version: `7.12.0`
-- Build package: `org.openapitools.codegen.languages.PhpClientCodegen`
+| Ambiente | Host | Cobro |
+|---|---|---|
+| `Environment::DEMO` | `demo.facter.com.mx` | No (sandbox) |
+| `Environment::LIVE` | `v2.facter.com.mx` | Sí (consume timbres) |
+
+---
+
+## Inicio rápido
+
+```php
+<?php
+require 'vendor/autoload.php';
+
+use Facter\Sdk\Configuration;
+use Facter\Sdk\Environment;
+use Facter\Sdk\Api\CFDIsApi;
+use Facter\Sdk\Model\StampRequest;
+use Facter\Sdk\Idempotency;
+use GuzzleHttp\Client;
+
+// 1. Configura tu key y el ambiente (empieza en DEMO).
+$config = Configuration::getDefaultConfiguration()
+    ->setAccessToken(getenv('FACTER_API_KEY'))          // fct_live_xxx
+    ->setHost(Environment::baseUrl(Environment::DEMO));
+
+$cfdis = new CFDIsApi(new Client(), $config);
+
+// 2. Arma el comprobante (JSON canónico CFDI 4.0).
+$req = new StampRequest([
+    'emisor_rfc'  => 'EKU9003173C9',
+    'external_ref'=> 'FACTURA-2026-00042',   // tu folio interno (opcional)
+    'cfdi'        => [ /* ...comprobante CFDI 4.0... */ ],
+]);
+
+// 3. Timbra. La clave de idempotencia evita doble cobro ante reintentos.
+$idempotencyKey = Idempotency::newKey();
+
+try {
+    $resp = $cfdis->stampCfdi($idempotencyKey, $req);
+    echo "Timbrado UUID: " . $resp->getData()->getUuid() . PHP_EOL;
+} catch (\Facter\Sdk\ApiException $e) {
+    $error = json_decode($e->getResponseBody(), true);
+    fwrite(STDERR, "Error {$e->getCode()}: {$error['error']['code']}\n");
+}
+```
+
+> La estructura completa del `cfdi` (el JSON canónico CFDI 4.0) está documentada,
+> con ejemplos verificados, en el portal: <https://v2.facter.com.mx/developers>.
+
+---
+
+## Idempotencia (timbrar = dinero)
+
+Timbrar consume un timbre. El API exige `Idempotency-Key` en los mutadores para
+garantizar consumo **exactamente una vez**. El SDK te da claves seguras:
+
+```php
+use Facter\Sdk\Idempotency;
+
+$key = Idempotency::newKey();                          // UUID v4 aleatorio
+$key = Idempotency::fromReference('FACTURA-2026-42');  // determinista por folio
+```
+
+**Regla:** una clave por intento lógico. Si reintentas el **mismo** CFDI tras un
+timeout, **reusa la misma clave** — el API hace *replay* de la respuesta original
+en vez de timbrar otra vez.
+
+---
+
+## Reintentos automáticos (respetan `Retry-After`)
+
+Monta el middleware incluido para reintentar de forma segura `429 RATE_LIMITED`,
+`409 IDEMPOTENCY_IN_FLIGHT` y errores de red, respetando el header `Retry-After`:
+
+```php
+use Facter\Sdk\Http\RetryMiddleware;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Client;
+
+$stack = HandlerStack::create();
+$stack->push(RetryMiddleware::create());          // 3 reintentos por default
+
+$cfdis = new CFDIsApi(new Client(['handler' => $stack]), $config);
+```
+
+Nunca reintenta errores de negocio (402 sin saldo, 422 validación) — reintentar
+no cambiaría el resultado.
+
+---
+
+## Validar sin timbrar (dry-run)
+
+Verifica estructura, aritmética y catálogos SAT **sin** consumir timbre ni
+requerir idempotencia:
+
+```php
+$resultado = $cfdis->validateCfdi($req);
+```
+
+---
+
+## Webhooks: verifica la firma
+
+Facter firma cada webhook con HMAC-SHA256. **Siempre** verifica antes de confiar
+en el payload:
+
+```php
+use Facter\Sdk\Webhook;
+
+$raw    = file_get_contents('php://input');
+$sigHdr = $_SERVER['HTTP_X_FACTER_SIGNATURE'] ?? '';
+
+if (!Webhook::verifySignature($raw, $sigHdr, getenv('FACTER_WEBHOOK_SECRET'))) {
+    http_response_code(401);
+    exit;
+}
+
+$evento = json_decode($raw, true);   // cfdi.timbrado, cfdi.cancelado, ...
+```
+
+---
+
+## Manejo de errores
+
+Toda respuesta de error sigue el envoltorio estándar del API. Las excepciones son
+`Facter\Sdk\ApiException`:
+
+```php
+try {
+    $cfdis->stampCfdi($idempotencyKey, $req);
+} catch (\Facter\Sdk\ApiException $e) {
+    $body = json_decode($e->getResponseBody(), true);
+    // $e->getCode()            → HTTP status (402, 422, 429, ...)
+    // $body['error']['code']   → código de negocio (NO_STAMPS_AVAILABLE, ...)
+    // $body['error']['docs']   → enlace a la doc del error
+}
+```
+
+---
+
+## Operaciones disponibles
+
+| Recurso | Clase | Operaciones |
+|---|---|---|
+| CFDIs | `CFDIsApi` | Timbrar, validar, listar, consultar, XML, PDF |
+| Cancelaciones | `CancelacionesApi` | Solicitar y consultar cancelación SAT |
+| Emisores | `EmisoresApi` | Alta, listar, detalle, subir CSD |
+| Timbres | `TimbresApi` | Saldo del pool, reporte de consumo |
+| Webhooks | `WebhooksApi` | Consultar y configurar |
+
+Referencia método por método en [`docs/`](docs/) y en el portal
+<https://v2.facter.com.mx/developers>.
+
+---
+
+## Versionado y soporte
+
+- **SemVer.** Cada release acompaña un cambio del contrato del API; el changelog
+  de releases es la referencia de cambios.
+- **Soporte:** [portal de desarrolladores](https://v2.facter.com.mx/developers) ·
+  issues de este repositorio.
+
+## Licencia
+
+[MIT](LICENSE).
