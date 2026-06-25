@@ -1,0 +1,43 @@
+{
+    "name": "georgesks/facter-sdk-php",
+    "description": "API pública para timbrar **CFDI 4.0** usando la infraestructura de Facter.  **Modelo comercial:** un **cliente principal** (plan PREPAGO) compra timbres; sus **emisores** (cada uno un tenant con su propio RFC y CSD) consumen del saldo del principal.  El contrato de entrada es el **JSON canónico CFDI 4.0**: el integrador envía el comprobante completo (Emisor, Receptor, Conceptos, Impuestos, Complemento...). Facter **valida** consistencia aritmética y contra catálogos SAT pero **no recalcula** totales — tu sistema es el sistema de registro.  **Ambientes:** prueba en **Demo** `https://demo.facter.com.mx/api/ext/v1` (sandbox de pruebas, sin cobro real, datos efímeros) y, cuando estés listo, pasa a **Producción** `https://v2.facter.com.mx/api/ext/v1` (timbrado real, consume timbres). Necesitas **una cuenta y una API key por ambiente**; la key de un ambiente no funciona en el otro. El host define el comportamiento.  **Autenticación:** `Authorization: Bearer fct_live_xxx`. **Idempotencia obligatoria** en endpoints mutadores vía header `Idempotency-Key`. Toda respuesta incluye `X-Request-Id` para soporte.  Documentación completa, quickstart y ejemplos: https://v2.facter.com.mx/developers",
+    "keywords": [
+        "openapitools",
+        "openapi-generator",
+        "openapi",
+        "php",
+        "sdk",
+        "rest",
+        "api"
+    ],
+    "homepage": "https://github.com/georgesks/facter-sdk-php",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "OpenAPI",
+            "homepage": "https://openapi-generator.tech"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "guzzlehttp/guzzle": "^7.3",
+        "guzzlehttp/psr7": "^1.7 || ^2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0 || ^9.0",
+        "friendsofphp/php-cs-fixer": "^3.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Facter\\Sdk\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Facter\\Sdk\\Test\\": "test/"
+        }
+    }
+}
