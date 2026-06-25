@@ -181,7 +181,8 @@ try {
 | Cancelaciones | `CancelacionesApi` | Solicitar y consultar cancelación SAT |
 | Emisores | `EmisoresApi` | Alta, listar, detalle, subir CSD |
 | Timbres | `TimbresApi` | Saldo del pool, reporte de consumo |
-| Webhooks | `WebhooksApi` | Consultar y configurar |
+
+> Los webhooks **se configuran desde la aplicación web** de Facter (*Mi cuenta → Webhooks*), no por el SDK/API. Lo que el SDK te da es la **verificación de firma** de las entregas — ver [Webhooks: verifica la firma](#webhooks-verifica-la-firma).
 
 Referencia método por método en [`docs/`](docs/) y en el portal
 <https://v2.facter.com.mx/developers>.

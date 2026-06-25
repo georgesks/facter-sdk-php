@@ -7,7 +7,6 @@ docs/Api/CFDIsApi.md
 docs/Api/CancelacionesApi.md
 docs/Api/EmisoresApi.md
 docs/Api/TimbresApi.md
-docs/Api/WebhooksApi.md
 docs/Model/CancellationRequest.md
 docs/Model/CancellationStatusResponse.md
 docs/Model/CancellationStatusResponseData.md
@@ -51,14 +50,12 @@ docs/Model/TimbresResponseDataPorEmisorMesActualInner.md
 docs/Model/Traslado.md
 docs/Model/ValidateResponse.md
 docs/Model/ValidateResponseData.md
-docs/Model/WebhookConfig.md
 git_push.sh
 phpunit.xml.dist
 src/Api/CFDIsApi.php
 src/Api/CancelacionesApi.php
 src/Api/EmisoresApi.php
 src/Api/TimbresApi.php
-src/Api/WebhooksApi.php
 src/ApiException.php
 src/Configuration.php
 src/HeaderSelector.php
@@ -106,13 +103,11 @@ src/Model/TimbresResponseDataPorEmisorMesActualInner.php
 src/Model/Traslado.php
 src/Model/ValidateResponse.php
 src/Model/ValidateResponseData.php
-src/Model/WebhookConfig.php
 src/ObjectSerializer.php
 test/Api/CFDIsApiTest.php
 test/Api/CancelacionesApiTest.php
 test/Api/EmisoresApiTest.php
 test/Api/TimbresApiTest.php
-test/Api/WebhooksApiTest.php
 test/Model/CancellationRequestTest.php
 test/Model/CancellationStatusResponseDataTest.php
 test/Model/CancellationStatusResponseTest.php
@@ -156,4 +151,3 @@ test/Model/TimbresResponseTest.php
 test/Model/TrasladoTest.php
 test/Model/ValidateResponseDataTest.php
 test/Model/ValidateResponseTest.php
-test/Model/WebhookConfigTest.php
